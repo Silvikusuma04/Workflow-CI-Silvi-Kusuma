@@ -30,7 +30,6 @@ with mlflow.start_run(run_name="RandomForest_Baseline"):
     predictions = regressor_model.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
 
-    # Log artefak preprocessor (encoder dan scaler)
     mlflow.log_artifact(LABEL_ENCODER_PATH, artifact_path="preprocessor")
     mlflow.log_artifact(SCALER_PATH, artifact_path="preprocessor")
 
