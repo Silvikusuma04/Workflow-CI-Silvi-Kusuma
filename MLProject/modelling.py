@@ -2,6 +2,7 @@ import os
 import time
 import pandas as pd
 import mlflow
+import mlflow.sklearn
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
@@ -9,12 +10,12 @@ import joblib
 
 EXPERIMENT_NAME = "Paddy Yield Forecasting-Tuning"
 PREPROCESSED_DATA_PATH = "padi_preprocessing/preprocessing_padi.csv"
-SCALER_PATH = "padi_preprocessing/scaler.joblib"
 LABEL_ENCODER_PATH = "padi_preprocessing/label_encoder.joblib"
+SCALER_PATH = "padi_preprocessing/scaler.joblib"  
 TARGET_COLUMN = "Produksi"
 
-mlflow.set_tracking_uri("file:./mlruns")
-mlflow.set_experiment(EXPERIMENT_NAME)
+if os.getenv("MLFLOW_RUN_ID") is None:
+    mlflow.set_experiment(EXPERIMENT_NAME)
 
 CI_MODE = os.getenv("CI", "false").lower() == "true"
 
@@ -35,12 +36,15 @@ else:
 
 with mlflow.start_run(run_name="RandomForest_Tuning_Run_Final"):
     master_table = pd.read_csv(PREPROCESSED_DATA_PATH)
+
     features = master_table.drop(TARGET_COLUMN, axis=1)
     target = master_table[TARGET_COLUMN]
 
     X_train, X_test, y_train, y_test = train_test_split(
         features, target, test_size=0.2, random_state=42
     )
+
+    start_time = time.time()
 
     grid_search = GridSearchCV(
         estimator=RandomForestRegressor(random_state=42),
@@ -49,8 +53,8 @@ with mlflow.start_run(run_name="RandomForest_Tuning_Run_Final"):
         scoring='neg_mean_squared_error',
         n_jobs=n_jobs_setting
     )
-    start_time = time.time()
     grid_search.fit(X_train, y_train)
+
     duration = time.time() - start_time
 
     best_model = grid_search.best_estimator_
