@@ -1,4 +1,4 @@
-name: MLflow CI Model
+name: MLflow CI
 
 on:
   push:
@@ -14,21 +14,21 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up Python and Conda
-      uses: conda-incubator/setup-miniconda@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: "3.12.9"
-        environment-file: MLProject/conda.yaml
-        auto-activate-base: false
-        activate-environment: mlflow-env
-        channels: conda-forge
+        python-version: "3.10"
 
-    - name: Train MLflow Model (Local Tracking)
+    - name: Install dependencies
       run: |
-        cd MLProject
-        conda run -n mlflow-env mlflow run . --env-manager=local
+        python -m pip install --upgrade pip
+        pip install mlflow scikit-learn pandas joblib
 
-    - name: Commit and Push Model Artifact to GitHub
+    - name: Train MLflow Model
+      run: |
+        mlflow run MLProject --env-manager=local
+
+    - name: Commit and Push MLflow Artifacts
       run: |
         git config user.name 'github-actions'
         git config user.email 'github-actions@github.com'
@@ -38,11 +38,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Get Latest MLflow Model Artifact Path
+    - name: Get Latest MLflow Model Path
+      id: get_model_path
       run: |
         MODEL_PATH=$(find mlruns -type d -path "*/artifacts/model" | sort -r | head -n 1)
         echo "MODEL_PATH=$MODEL_PATH" >> $GITHUB_ENV
-        echo "Latest model path: $MODEL_PATH"
+        echo "MODEL_PATH=$MODEL_PATH" >> $GITHUB_OUTPUT
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
@@ -52,9 +53,7 @@ jobs:
 
     - name: Build Docker Image from MLflow Model
       run: |
-        conda run -n mlflow-env mlflow models build-docker \
-          -m ${{ env.MODEL_PATH }} \
-          -n padi-forecasting-model
+        mlflow models build-docker -m ${{ steps.get_model_path.outputs.MODEL_PATH }} -n padi-forecasting-model
 
     - name: Push Docker Image to Docker Hub
       run: |
