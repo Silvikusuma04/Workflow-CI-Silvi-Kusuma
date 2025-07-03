@@ -21,10 +21,15 @@ jobs:
           activate-environment: mlflow-env
           channels: conda-forge
 
-      - name: Set DagsHub Environment Variables
+      - name: Configure DagsHub
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
+          # --- PERBAIKAN DI SINI ---
+          # Membuat direktori secara manual jika belum ada
+          mkdir -p $CONDA_PREFIX/etc/conda/activate.d
+          # ------------------------
+          
           echo "DAGSHUB_TOKEN=${DAGSHUB_TOKEN}" >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
         shell: bash
 
