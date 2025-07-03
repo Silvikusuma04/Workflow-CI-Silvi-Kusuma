@@ -46,7 +46,7 @@ jobs:
 
       - name: Get latest Run ID
         run: |
-          RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Forecasting-Tuning" --output json | jq -r '.[0].info.run_id')
+          RUN_ID=$(mlflow runs search --experiment-name "Paddy Yield Forecasting-Tuning" --output json | jq -r '.[0].info.run_id')
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest Run ID: $RUN_ID"
         shell: bash -l {0}
@@ -59,6 +59,6 @@ jobs:
 
       - name: Build and Push Docker Image from MLflow Model
         run: |
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model"
+          mlflow models build-docker --model-uri "runs:/${{ env.RUN_ID }}/model" --name "${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model"
           docker push ${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model:latest
         shell: bash -l {0}
