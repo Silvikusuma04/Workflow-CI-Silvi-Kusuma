@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/Workflow-CI-Silvi-Kusuma/Workflow-CI-Silvi-Kusuma/mlruns/0/208080aa19c74573bb6db9056b6ed946/artifacts
+end_time: 1751586188632
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 208080aa19c74573bb6db9056b6ed946
+run_name: righteous-snake-273
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751586184698
+status: 3
+tags: []
+user_id: runner
