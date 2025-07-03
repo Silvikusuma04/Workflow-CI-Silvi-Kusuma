@@ -8,13 +8,12 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import joblib
 
 EXPERIMENT_NAME = "Paddy Yield Forecasting-Tuning"
-
-PREPROCESSED_DATA_PATH = "padi_preprocessing/preprocessed_padi.csv"
-SCALER_PATH = "padi_preprocessing/min_max_scaler.joblib"
+PREPROCESSED_DATA_PATH = "padi_preprocessing/preprocessing_padi.csv"
+SCALER_PATH = "padi_preprocessing/scaler.joblib"
 LABEL_ENCODER_PATH = "padi_preprocessing/label_encoder.joblib"
-TARGET_COLUMN = "Produksi (Ton)"
+TARGET_COLUMN = "Produksi"
 
-mlflow.set_tracking_uri("file:///mlruns")
+mlflow.set_tracking_uri("file:./mlruns")
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 CI_MODE = os.getenv("CI", "false").lower() == "true"
