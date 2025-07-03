@@ -22,7 +22,6 @@ jobs:
           activate-environment: mlflow-env
           channels: conda-forge
 
-      # ✅ Tambah autentikasi ke DagsHub agar MLflow bisa connect
       - name: Set MLflow Tracking URI with Auth
         run: |
           echo "MLFLOW_TRACKING_URI=https://${{ secrets.DAGSHUB_USERNAME }}:${{ secrets.DAGSHUB_TOKEN }}@dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/padi_forecasting.mlflow" >> $GITHUB_ENV
@@ -47,7 +46,7 @@ jobs:
 
       - name: Get latest Run ID
         run: |
-          RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Optimization - Hyperparameter Tuning" --output json | jq -r '.[0].info.run_id')
+          RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Forecasting-Tuning" --output json | jq -r '.[0].info.run_id')
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest Run ID: $RUN_ID"
         shell: bash -l {0}

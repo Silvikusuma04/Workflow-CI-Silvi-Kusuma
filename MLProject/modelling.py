@@ -8,7 +8,7 @@ import joblib
 
 DAGSHUB_REPO_OWNER = "Silvikusuma04"
 DAGSHUB_REPO_NAME = "padi_forecasting"
-EXPERIMENT_NAME = "Paddy Yield Optimization - Hyperparameter Tuning"
+EXPERIMENT_NAME = "Paddy Yield Forecasting-Tuning"
 
 PREPROCESSED_DATA_PATH = "padi_preprocessing/preprocessed_padi.csv"
 SCALER_PATH = "padi_preprocessing/min_max_scaler.joblib"
