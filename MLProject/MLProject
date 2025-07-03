@@ -1,0 +1,7 @@
+name: Paddy_Yield_Training_Pipeline
+
+conda_file: conda.yaml
+
+entry_points:
+  main:
+    command: "python modelling.py"
