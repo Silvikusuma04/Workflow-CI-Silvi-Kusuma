@@ -1,4 +1,4 @@
-name: CI - Model Training Pipeline
+name: MLflow CI Model
 
 on:
   push:
@@ -6,70 +6,57 @@ on:
       - main
 
 jobs:
-  train-and-build:
+  train-log-and-dockerize:
     runs-on: ubuntu-latest
-    environment: Workflow-CI 
+    environment: Workflow-CI
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Set up Python and Conda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: "3.12.9"
-          environment-file: MLProject/conda.yaml
-          auto-activate-base: false
-          activate-environment: mlflow-env
-          channels: conda-forge
-          
-      - name: Debug DagsHub Secret
-        run: |
-          echo "DAGSHUB_USERNAME is: ${{ secrets.DAGSHUB_USERNAME }}"
-          echo "Tracking URI will be: https://${{ secrets.DAGSHUB_USERNAME }}:***@dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/padi_forecasting.mlflow"
-        shell: bash
+    - name: Set up Python and Conda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: "3.12.9"
+        environment-file: MLProject/conda.yaml
+        auto-activate-base: false
+        activate-environment: mlflow-env
+        channels: conda-forge
 
-      - name: Set MLflow Tracking URI with Auth
-        run: |
-          if [ -z "${{ secrets.DAGSHUB_USERNAME }}" ] || [ -z "${{ secrets.DAGSHUB_TOKEN }}" ]; then
-            echo "DAGSHUB credentials are missing"
-            exit 1
-            fi
-          echo "MLFLOW_TRACKING_URI=https://${{ secrets.DAGSHUB_USERNAME }}:${{ secrets.DAGSHUB_TOKEN }}@dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/padi_forecasting.mlflow" >> $GITHUB_ENV
-        shell: bash
+    - name: Train MLflow Model (Local Tracking)
+      run: |
+        cd MLProject
+        conda run -n mlflow-env mlflow run . --env-manager=local
 
-      - name: Setup .netrc for DagsHub Auth
-        run: |
-          echo "machine dagshub.com" > ~/.netrc
-          echo "login ${{ secrets.DAGSHUB_USERNAME }}" >> ~/.netrc
-          echo "password ${{ secrets.DAGSHUB_TOKEN }}" >> ~/.netrc
-          chmod 600 ~/.netrc
-        shell: bash
+    - name: Commit and Push Model Artifact to GitHub
+      run: |
+        git config user.name 'github-actions'
+        git config user.email 'github-actions@github.com'
+        git add mlruns/*
+        git commit -m 'Update model artifact from MLflow tracking'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run MLflow Project to Train Model
-        run: |
-          cd MLProject
-          conda run -n mlflow-env mlflow run . --env-manager=local
-        shell: bash
+    - name: Get Latest MLflow Model Artifact Path
+      run: |
+        MODEL_PATH=$(find mlruns -type d -path "*/artifacts/model" | sort -r | head -n 1)
+        echo "MODEL_PATH=$MODEL_PATH" >> $GITHUB_ENV
+        echo "Latest model path: $MODEL_PATH"
 
-      - name: Install jq for parsing JSON
-        run: sudo apt-get update && sudo apt-get install -y jq
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.USERNAME_DOCKER }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get latest Run ID
-        run: |
-          RUN_ID=$(conda run -n mlflow-env mlflow runs list --experiment-name "Paddy Yield Forecasting-Tuning" | awk 'NR==2 {print $1}')
-          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Latest Run ID: $RUN_ID"
-        shell: bash
+    - name: Build Docker Image from MLflow Model
+      run: |
+        conda run -n mlflow-env mlflow models build-docker \
+          -m ${{ env.MODEL_PATH }} \
+          -n padi-forecasting-model
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.USERNAME_DOCKER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and Push Docker Image from MLflow Model
-        run: |
-          conda run -n mlflow-env mlflow models build-docker --model-uri "runs:/${{ env.RUN_ID }}/model" --name "${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model"
-          docker push ${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model:latest
-        shell: bash
+    - name: Push Docker Image to Docker Hub
+      run: |
+        docker tag padi-forecasting-model:latest ${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model:latest
+        docker push ${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model:latest
