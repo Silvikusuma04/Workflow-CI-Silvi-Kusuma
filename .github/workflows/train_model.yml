@@ -39,8 +39,7 @@ jobs:
 
       - name: Run MLflow Project to Train Model
         run: |
-          cd MLProject
-          mlflow run .
+          mlflow run MLProject
         shell: bash -l {0}
 
       - name: Login to Docker Hub
@@ -52,11 +51,11 @@ jobs:
       - name: Build and Push Docker Image (Advanced)
         run: |
           sudo apt-get update && sudo apt-get install -y jq
-          
+
           RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Forecast - Foundational Model" --output json | jq -r '.[0].info.run_id')
           echo "Latest Run ID is $RUN_ID"
-          
+
           mlflow models build-docker --model-uri "runs:/$RUN_ID/random_forest_model" --name "${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model"
-          
+
           docker push ${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model:latest
         shell: bash -l {0}
