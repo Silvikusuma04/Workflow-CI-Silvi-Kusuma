@@ -46,7 +46,7 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.USERNAME_DOCKERHUB}}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image (Advanced)
@@ -55,6 +55,6 @@ jobs:
           RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Forecast - Foundational Model" --output json | jq -r '.[0].info.run_id')
           echo "Latest Run ID is $RUN_ID"
           
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/random_forest_model" --name "${{ secrets.DOCKERHUB_USERNAME }}/padi-forecasting-model"
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/padi-forecasting-model:latest
+          mlflow models build-docker --model-uri "runs:/$RUN_ID/random_forest_model" --name "${{ secrets.USERNAME_DOCKERHUB }}/padi-forecasting-model"
+          docker push ${{ secrets.USERNAME_DOCKERHUB }}/padi-forecasting-model:latest
         shell: bash -l {0}
