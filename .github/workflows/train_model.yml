@@ -25,8 +25,8 @@ jobs:
       - name: Set Environment Variables for MLflow
         run: |
           echo "MLFLOW_TRACKING_URI=https://dagshub.com/Silvikusuma04/padi_forecasting.mlflow" >> $GITHUB_ENV
-          echo "DAGSHUB_USERNAME=${{ secrets.DAGSHUB_USERNAME }}" >> $GITHUB_ENV
-          echo "DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}" >> $GITHUB_ENV
+          echo "MLFLOW_TRACKING_USERNAME=${{ secrets.DAGSHUB_USERNAME }}" >> $GITHUB_ENV
+          echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.DAGSHUB_TOKEN }}" >> $GITHUB_ENV
         shell: bash
 
       - name: Setup .netrc for DagsHub Authentication
@@ -46,15 +46,17 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.USERNAME_DOCKERHUB}}
+          username: ${{ secrets.USERNAME_DOCKER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image (Advanced)
         run: |
           sudo apt-get update && sudo apt-get install -y jq
+          
           RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Forecast - Foundational Model" --output json | jq -r '.[0].info.run_id')
           echo "Latest Run ID is $RUN_ID"
           
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/random_forest_model" --name "${{ secrets.USERNAME_DOCKERHUB }}/padi-forecasting-model"
-          docker push ${{ secrets.USERNAME_DOCKERHUB }}/padi-forecasting-model:latest
+          mlflow models build-docker --model-uri "runs:/$RUN_ID/random_forest_model" --name "${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model"
+          
+          docker push ${{ secrets.USERNAME_DOCKER }}/padi-forecasting-model:latest
         shell: bash -l {0}
