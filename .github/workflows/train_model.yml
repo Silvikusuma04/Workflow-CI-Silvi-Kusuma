@@ -8,6 +8,7 @@ on:
 jobs:
   train-and-build:
     runs-on: ubuntu-latest
+    environment: Workflow-CI 
 
     steps:
       - name: Checkout Repository
@@ -21,6 +22,12 @@ jobs:
           auto-activate-base: false
           activate-environment: mlflow-env
           channels: conda-forge
+          
+      - name: Debug DagsHub Secret
+        run: |
+          echo "DAGSHUB_USERNAME is: ${{ secrets.DAGSHUB_USERNAME }}"
+          echo "Tracking URI will be: https://${{ secrets.DAGSHUB_USERNAME }}:***@dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/padi_forecasting.mlflow"
+        shell: bash
 
       - name: Set MLflow Tracking URI with Auth
         run: |
