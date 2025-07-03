@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/Workflow-CI-Silvi-Kusuma/Workflow-CI-Silvi-Kusuma/mlruns/0/92d58aaacca94f0d9e4071408095a3b9/artifacts
+end_time: 1751587021454
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 92d58aaacca94f0d9e4071408095a3b9
+run_name: ambitious-mule-679
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751587017303
+status: 3
+tags: []
+user_id: runner
