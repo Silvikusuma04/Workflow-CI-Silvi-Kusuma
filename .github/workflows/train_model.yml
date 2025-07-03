@@ -17,16 +17,22 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.12.9"
-          environment-file: MLProject/conda.yaml
+          environment-file: Workflow-CI/MLProject/conda.yaml
           auto-activate-base: false
           activate-environment: mlflow-env
           channels: conda-forge
 
-      - name: Set Environment Variables for MLflow
+      - name: Install MLflow
+        shell: bash -l {0}
         run: |
-          echo "MLFLOW_TRACKING_URI=https://dagshub.com/Silvikusuma04/padi_forecasting.mlflow" >> $GITHUB_ENV
+          conda activate mlflow-env
+          pip install mlflow
+
+      - name: Set DagsHub Auth Environment Variables
+        run: |
           echo "MLFLOW_TRACKING_USERNAME=${{ secrets.DAGSHUB_USERNAME }}" >> $GITHUB_ENV
           echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.DAGSHUB_TOKEN }}" >> $GITHUB_ENV
+          echo "MLFLOW_TRACKING_URI=https://dagshub.com/Silvikusuma04/padi_forecasting.mlflow" >> $GITHUB_ENV
         shell: bash
 
       - name: Setup .netrc for DagsHub Authentication
@@ -39,7 +45,7 @@ jobs:
 
       - name: Run MLflow Project to Train Model
         run: |
-          mlflow run MLProject
+          mlflow run Workflow-CI/MLProject --env-manager=local
         shell: bash -l {0}
 
       - name: Login to Docker Hub
