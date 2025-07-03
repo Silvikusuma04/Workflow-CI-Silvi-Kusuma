@@ -24,12 +24,17 @@ jobs:
       - name: Set Environment Variables for MLflow
         run: |
           echo "MLFLOW_TRACKING_URI=https://dagshub.com/Silvikusuma04/padi_forecasting.mlflow" >> $GITHUB_ENV
-          echo "DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}" >> $GITHUB_ENV
         shell: bash
+
+      - name: Setup .netrc for DagsHub Authentication
+        run: |
+          echo "machine dagshub.com" >> ~/.netrc
+          echo "login ${{ secrets.DAGSHUB_USERNAME }}" >> ~/.netrc
+          echo "password ${{ secrets.DAGSHUB_TOKEN }}" >> ~/.netrc
+          chmod 600 ~/.netrc
 
       - name: Run MLflow Project to Train Model
         run: |
-          # DagsHub CLI akan otomatis menggunakan environment variable di atas
           cd MLProject
           mlflow run .
         shell: bash -l {0}
@@ -40,14 +45,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image (Advanced)
+      - name: Build and Push Docker Image
         run: |
           sudo apt-get update && sudo apt-get install -y jq
-          
-          RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Forecast - Foundational Model" --query "tags.mlflow.source.type='PROJECT'" -o json | jq -r '.[0].info.run_id')
+
+          RUN_ID=$(mlflow runs list --experiment-name "Paddy Yield Forecast - Foundational Model" --output json | jq -r '.[0].info.run_id')
           echo "Latest Run ID is $RUN_ID"
-          
+
           mlflow models build-docker --model-uri "runs:/$RUN_ID/random_forest_model" --name "${{ secrets.DOCKERHUB_USERNAME }}/padi-forecasting-model"
-          
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/padi-forecasting-model:latest
-        shell: bash -l {0}
