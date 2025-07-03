@@ -21,22 +21,15 @@ jobs:
           activate-environment: mlflow-env
           channels: conda-forge
 
-      - name: Configure DagsHub
-        env:
-          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+      - name: Set Environment Variables for MLflow
         run: |
-          # --- PERBAIKAN DI SINI ---
-          # Membuat direktori secara manual jika belum ada
-          mkdir -p $CONDA_PREFIX/etc/conda/activate.d
-          # ------------------------
-          
-          echo "DAGSHUB_TOKEN=${DAGSHUB_TOKEN}" >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+          echo "MLFLOW_TRACKING_URI=https://dagshub.com/Silvikusuma04/padi_forecasting.mlflow" >> $GITHUB_ENV
+          echo "DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}" >> $GITHUB_ENV
         shell: bash
 
       - name: Run MLflow Project to Train Model
-        env:
-          MLFLOW_TRACKING_URI: https://dagshub.com/Silvikusuma04/padi_forecasting.mlflow
         run: |
+          # DagsHub CLI akan otomatis menggunakan environment variable di atas
           cd MLProject
           mlflow run .
         shell: bash -l {0}
@@ -48,8 +41,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image (Advanced)
-        env:
-          MLFLOW_TRACKING_URI: https://dagshub.com/Silvikusuma04/padi_forecasting.mlflow
         run: |
           sudo apt-get update && sudo apt-get install -y jq
           
