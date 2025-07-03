@@ -24,6 +24,10 @@ jobs:
 
       - name: Set MLflow Tracking URI with Auth
         run: |
+          if [ -z "${{ secrets.DAGSHUB_USERNAME }}" ] || [ -z "${{ secrets.DAGSHUB_TOKEN }}" ]; then
+            echo "DAGSHUB credentials are missing"
+            exit 1
+            fi
           echo "MLFLOW_TRACKING_URI=https://${{ secrets.DAGSHUB_USERNAME }}:${{ secrets.DAGSHUB_TOKEN }}@dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/padi_forecasting.mlflow" >> $GITHUB_ENV
         shell: bash
 
