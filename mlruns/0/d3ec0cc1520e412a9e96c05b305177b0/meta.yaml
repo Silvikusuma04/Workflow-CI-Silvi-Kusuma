@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/Workflow-CI-Silvi-Kusuma/Workflow-CI-Silvi-Kusuma/mlruns/0/d3ec0cc1520e412a9e96c05b305177b0/artifacts
+end_time: 1751588335532
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d3ec0cc1520e412a9e96c05b305177b0
+run_name: trusting-skink-183
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751588331562
+status: 3
+tags: []
+user_id: runner
