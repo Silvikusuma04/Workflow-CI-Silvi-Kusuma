@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/Workflow-CI-Silvi-Kusuma/Workflow-CI-Silvi-Kusuma/mlruns/0/5c0a2ad5edec4e6c85907fc6729880fe/artifacts
+end_time: 1751587660497
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5c0a2ad5edec4e6c85907fc6729880fe
+run_name: merciful-wasp-294
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751587656401
+status: 3
+tags: []
+user_id: runner
