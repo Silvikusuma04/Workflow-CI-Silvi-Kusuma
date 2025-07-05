@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/Workflow-CI-Silvi-Kusuma/Workflow-CI-Silvi-Kusuma/mlruns/0/5f06f6581eab4d1c804fe6936d546007/artifacts
+end_time: 1751629772947
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5f06f6581eab4d1c804fe6936d546007
+run_name: unique-shoat-446
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751629769064
+status: 3
+tags: []
+user_id: runner
