@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/Workflow-CI-Silvi-Kusuma/Workflow-CI-Silvi-Kusuma/mlruns/0/ecf2177e2c9549719d721ffcef622152/artifacts
+end_time: 1751720975647
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: ecf2177e2c9549719d721ffcef622152
+run_name: stately-loon-893
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751720971705
+status: 3
+tags: []
+user_id: runner
